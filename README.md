@@ -1,5 +1,5 @@
 # Utpl.Proyecto.IBimestre
-Repositorio base del proyecto de 1 primestre de Interoperabilidad por Maria Camil Brito Cevallos. mcbrito@gmail.com
+Repositorio base del proyecto de 1 primestre de Interoperabilidad por Camila Brito Cevallos. mcbrito6@gmail.com
 
 ## Descripción
 Este proyecto contiene una API REST básica desarrollada con FastAPI para propósitos educativos. El objetivo es enseñar cómo trabajar con APIs REST utilizando Python y FastAPI.
