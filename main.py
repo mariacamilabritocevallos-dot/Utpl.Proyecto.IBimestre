@@ -35,7 +35,7 @@ def informacion():
     Endpoint de información de la API
     """
     return {
-        "nombre": "API de Ejemplo UTPL",
+        "nombre": "API de Facturacion",
         "version": "1.0.0",
-        "descripcion": "Esta es una API básica creada con FastAPI para propósitos educativos"
-    }
+        "descripcion": "API diseñada para la gestión de procesos de facturación"
+        }
