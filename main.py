@@ -7,8 +7,8 @@ from fastapi import FastAPI
 
 # Crear la instancia de FastAPI
 app = FastAPI(
-    title="API de Facturacion",
-    description="API REST básica para aprender FastAPI en Interoperabilidad de Sistemas",
+    title="API de Facturacion- Maria Brito",
+    description="API REST para la gestión de procesos de facturación",
     version="1.0.0"
 )
 
