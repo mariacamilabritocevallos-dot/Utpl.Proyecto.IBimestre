@@ -1,6 +1,6 @@
 """
 API REST básica con FastAPI
-Este es un esqueleto de API para enseñar a estudiantes
+Implementación base de una API orientada a la gestión de facturación.
 """
 
 from fastapi import FastAPI
