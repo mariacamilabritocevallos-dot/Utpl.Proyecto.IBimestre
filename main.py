@@ -4,6 +4,7 @@ Este es un esqueleto de API para enseñar a estudiantes
 """
 
 from fastapi import FastAPI
+from modelos.cliente_dto import Cliente
 
 # Crear la instancia de FastAPI
 app = FastAPI(
@@ -39,3 +40,10 @@ def informacion():
         "version": "1.0.0",
         "descripcion": "API diseñada para la gestión de procesos de facturación"
         }
+
+@app.post("/clientes", response_model=Cliente, tags=["Clientes"])
+def crear_cliente(cliente: Cliente):
+    """
+    Endpoint para crear un nuevo cliente
+    """
+    return cliente
