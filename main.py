@@ -3,72 +3,180 @@ API REST básica con FastAPI
 Implementación base de una API orientada a la gestión de facturación.
 """
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from modelos.cliente_dto import Cliente
 from modelos.producto_dto import Producto
 from modelos.detalle_factura_dto import DetalleFactura
 from modelos.factura_dto import Factura
 
-# Crear la instancia de FastAPI
+# Simulación de base de datos
+dbClientes = []
+dbProductos = []
+dbDetalles = []
+dbFacturas = []
+
+# Instancia de FastAPI
 app = FastAPI(
-    title="API de Facturacion- Maria Brito",
+    title="API de Facturación - Maria Brito",
     description="API REST para la gestión de procesos de facturación",
     version="1.0.0"
 )
 
 
+# ROOT Y ENDPOINTS BÁSICOS
+
+
 @app.get("/")
 def root():
-    """
-    Endpoint raíz - Hola Mundo
-    """
+    """Endpoint raíz - Hola Mundo"""
     return {"mensaje": "¡Hola Mundo desde FastAPI!"}
 
 
 @app.get("/saludo/{nombre}")
 def saludar(nombre: str):
-    """
-    Endpoint de ejemplo con parámetro de ruta
-    """
+    """Endpoint de ejemplo con parámetro de ruta"""
     return {"mensaje": f"¡Hola {nombre}! Bienvenido a la API"}
 
 
 @app.get("/info")
 def informacion():
-    """
-    Endpoint de información de la API
-    """
+    """Información general de la API"""
     return {
-        "nombre": "API de Facturacion",
+        "nombre": "API de Facturación",
         "version": "1.0.0",
         "descripcion": "API diseñada para la gestión de procesos de facturación"
-        }
+    }
+
+# ==================   CLIENTES   ======================
+
 
 @app.post("/clientes", response_model=Cliente, tags=["Clientes"])
 def crear_cliente(cliente: Cliente):
-    """
-    Endpoint para crear un nuevo cliente
-    """
+    """Crear un nuevo cliente"""
+    dbClientes.append(cliente)
     return cliente
+
+
+@app.get("/clientes", response_model=list[Cliente], tags=["Clientes"])
+def obtener_clientes():
+    """Obtener todos los clientes"""
+    return dbClientes
+
+
+@app.get("/clientes/{identificacion}", response_model=Cliente, tags=["Clientes"])
+def obtener_cliente_por_identificacion(identificacion: str):
+    """Buscar un cliente por su identificación"""
+    for c in dbClientes:
+        if c.identificacion == identificacion:
+            return c
+    raise HTTPException(status_code=404, detail="Cliente no encontrado")
+
+
+@app.put("/clientes/{identificacion}", response_model=Cliente, tags=["Clientes"])
+def actualizar_cliente(identificacion: str, cliente_actualizado: Cliente):
+    """
+    Actualizar un cliente existente.
+    La identificación del cuerpo debe coincidir con la de la ruta.
+    """
+    if cliente_actualizado.identificacion != identificacion:
+        raise HTTPException(status_code=400, detail="Identificación inconsistente")
+
+    for idx, c in enumerate(dbClientes):
+        if c.identificacion == identificacion:
+            dbClientes[idx] = cliente_actualizado
+            return cliente_actualizado
+
+    raise HTTPException(status_code=404, detail="Cliente no encontrado")
+
+# ==================   PRODUCTOS   =====================
 
 
 @app.post("/productos", response_model=Producto, tags=["Productos"])
 def crear_producto(producto: Producto):
-    """
-    Endpoint para crear un nuevo producto
-    """
+    """Crear un nuevo producto"""
+    dbProductos.append(producto)
     return producto
+
+
+@app.get("/productos", response_model=list[Producto], tags=["Productos"])
+def obtener_productos():
+    """Obtener todos los productos"""
+    return dbProductos
+
+
+@app.get("/productos/{codigo}", response_model=Producto, tags=["Productos"])
+def obtener_producto_por_codigo(codigo: str):
+    """Buscar un producto por código"""
+    for p in dbProductos:
+        if p.codigo == codigo:
+            return p
+    raise HTTPException(status_code=404, detail="Producto no encontrado")
+
+
+@app.put("/productos/{codigo}", response_model=Producto, tags=["Productos"])
+def actualizar_producto(codigo: str, producto_actualizado: Producto):
+    """Actualizar un producto por código"""
+    if producto_actualizado.codigo != codigo:
+        raise HTTPException(status_code=400, detail="Código inconsistente")
+
+    for idx, p in enumerate(dbProductos):
+        if p.codigo == codigo:
+            dbProductos[idx] = producto_actualizado
+            return producto_actualizado
+
+    raise HTTPException(status_code=404, detail="Producto no encontrado")
+
+
+# ================= DETALLE FACTURA ====================
+
 
 @app.post("/detalle_factura", response_model=DetalleFactura, tags=["Detalle Factura"])
 def crear_detalle_factura(detalle: DetalleFactura):
-    """
-    Endpoint para crear un nuevo detalle de factura
-    """
+    """Crear detalle de factura"""
+    dbDetalles.append(detalle)
     return detalle
+
+
+@app.get("/detalle_factura", response_model=list[DetalleFactura], tags=["Detalle Factura"])
+def obtener_detalles_factura():
+    """Obtener todos los detalles de factura"""
+    return dbDetalles
+
+
+# ===================== FACTURA ========================
+
 
 @app.post("/factura", response_model=Factura, tags=["Factura"])
 def crear_factura(factura: Factura):
-    """
-    Endpoint para crear una nueva factura
-    """
+    """Crear una nueva factura"""
+    dbFacturas.append(factura)
     return factura
+
+
+@app.get("/factura", response_model=list[Factura], tags=["Factura"])
+def obtener_facturas():
+    """Obtener todas las facturas"""
+    return dbFacturas
+
+
+@app.get("/factura/{id}", response_model=Factura, tags=["Factura"])
+def obtener_factura_por_id(id: int):
+    """Buscar una factura por ID"""
+    for f in dbFacturas:
+        if f.id == id:
+            return f
+    raise HTTPException(status_code=404, detail="Factura no encontrada")
+
+
+@app.put("/factura/{id}", response_model=Factura, tags=["Factura"])
+def actualizar_factura(id: int, factura_actualizada: Factura):
+    """Actualizar una factura por ID"""
+    if factura_actualizada.id != id:
+        raise HTTPException(status_code=400, detail="El ID del cuerpo no coincide con la ruta")
+
+    for idx, f in enumerate(dbFacturas):
+        if f.id == id:
+            dbFacturas[idx] = factura_actualizada
+            return factura_actualizada
+
+    raise HTTPException(status_code=404, detail="Factura no encontrada")
