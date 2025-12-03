@@ -17,7 +17,7 @@ dbFacturas = []
 
 # Instancia de FastAPI
 app = FastAPI(
-    title="API de Facturación - Maria Brito",
+    title="API de Facturación - Maria Brito - mcbrito6@utpl.edu.ec",
     description="API REST para la gestión de procesos de facturación",
     version="1.0.0"
 )
