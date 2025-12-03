@@ -8,12 +8,16 @@ from modelos.cliente_dto import Cliente
 from modelos.producto_dto import Producto
 from modelos.detalle_factura_dto import DetalleFactura
 from modelos.factura_dto import Factura
+from db.supabase import create_supabase_client
 
 # Simulación de base de datos
 dbClientes = []
 dbProductos = []
 dbDetalles = []
 dbFacturas = []
+
+#Crear el cliente de Supabase
+supabase = create_supabase_client()
 
 # Instancia de FastAPI
 app = FastAPI(
@@ -60,7 +64,8 @@ def crear_cliente(cliente: Cliente):
 @app.get("/clientes", response_model=list[Cliente], tags=["Clientes"])
 def obtener_clientes():
     """Obtener todos los clientes"""
-    return dbClientes
+    data = supabase.table("cliente").select("*").execute()
+    return data.data
 
 
 @app.get("/clientes/{identificacion}", response_model=Cliente, tags=["Clientes"])
