@@ -57,7 +57,13 @@ def informacion():
 @app.post("/clientes", response_model=Cliente, tags=["Clientes"])
 def crear_cliente(cliente: Cliente):
     """Crear un nuevo cliente"""
-    dbClientes.append(cliente)
+
+    data = supabase.table("cliente").insert({
+        "nombre": cliente.nombre,
+        "correo": cliente.correo,
+        "telefono": cliente.telefono
+
+        }).execute()
     return cliente
 
 
@@ -71,9 +77,9 @@ def obtener_clientes():
 @app.get("/clientes/{identificacion}", response_model=Cliente, tags=["Clientes"])
 def obtener_cliente_por_identificacion(identificacion: str):
     """Buscar un cliente por su identificación"""
-    for c in dbClientes:
-        if c.identificacion == identificacion:
-            return c
+    data = supabase.table("cliente").select("*").eq("identificacion", identificacion).execute()
+    if data.data:
+        return data.data[0]
     raise HTTPException(status_code=404, detail="Cliente no encontrado")
 
 
@@ -86,11 +92,24 @@ def actualizar_cliente(identificacion: str, cliente_actualizado: Cliente):
     if cliente_actualizado.identificacion != identificacion:
         raise HTTPException(status_code=400, detail="Identificación inconsistente")
 
-    for idx, c in enumerate(dbClientes):
-        if c.identificacion == identificacion:
-            dbClientes[idx] = cliente_actualizado
-            return cliente_actualizado
+    data = supabase.table("cliente").update({
+        "nombre": cliente_actualizado.nombre,
+        "correo": cliente_actualizado.correo,
+        "telefono": cliente_actualizado.telefono
+        }).eq("identificacion", identificacion).execute()
+    if data.data:
+        return cliente_actualizado
 
+    raise HTTPException(status_code=404, detail="Cliente no encontrado")
+
+@app.delete("/clientes/{identificacion}", response_model=Cliente, tags=["Clientes"])
+def eliminar_cliente(identificacion: str):
+    """Eliminar un cliente por su identificación.
+    Retorna el cliente eliminado o 404 si no existe.
+    """
+    data = supabase.table("cliente").delete().eq("identificacion", identificacion).execute()
+    if data.data:
+        return data.data[0]
     raise HTTPException(status_code=404, detail="Cliente no encontrado")
 
 # ==================   PRODUCTOS   =====================

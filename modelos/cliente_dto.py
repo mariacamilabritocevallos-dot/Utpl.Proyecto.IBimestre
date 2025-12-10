@@ -6,3 +6,4 @@ class Cliente(BaseModel):
     nombre: str
     correo: str
     telefono: Optional[str] = None
+    identificacion: str
