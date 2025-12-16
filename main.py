@@ -143,10 +143,14 @@ def eliminar_cliente(identificacion: str):
 
 @app.post("/productos", response_model=Producto, tags=["Productos"])
 def crear_producto(producto: Producto):
-    """Crear un nuevo producto"""
-    dbProductos.append(producto)
-    return producto
+    data = supabase.table("producto").insert({
+        "nombre": producto.nombre,
+        "descripcion": producto.descripcion,
+        "precio_unitario": producto.precio_unitario,
+        "stock": producto.stock
+    }).execute()
 
+    return data.data[0]
 
 @app.get("/productos", response_model=list[Producto], tags=["Productos"])
 def obtener_productos():
@@ -195,11 +199,35 @@ def obtener_detalles_factura():
 # ===================== FACTURA ========================
 
 
-@app.post("/factura", response_model=Factura, tags=["Factura"])
+@app.post("/factura", tags=["Factura"])
 def crear_factura(factura: Factura):
-    """Crear una nueva factura"""
-    dbFacturas.append(factura)
-    return factura
+
+    # Subtotal enviado por el cliente
+    subtotal = factura.subtotal
+
+    # Calcular impuesto (IVA 12%)
+    impuesto = round(subtotal * 0.12, 2)
+
+    # 3Calcular total
+    total = round(subtotal + impuesto, 2)
+
+    #  Datos a insertar
+    insert_data = {
+        "cliente_id": factura.cliente_id,
+        "fecha": factura.fecha.isoformat(),
+        "subtotal": subtotal,
+        "impuesto": impuesto,
+        "total": total
+    }
+
+   
+    if factura.numero_factura:
+        insert_data["numero_factura"] = factura.numero_factura
+
+  
+    data = supabase.table("factura").insert(insert_data).execute()
+
+    return data.data[0]
 
 
 @app.get("/factura", response_model=list[Factura], tags=["Factura"])

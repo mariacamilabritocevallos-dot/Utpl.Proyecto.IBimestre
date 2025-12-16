@@ -2,8 +2,17 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 
+#  MODELO PARA RESPUESTA
 class Producto(BaseModel):
     id: int
+    nombre: str
+    descripcion: Optional[str]
+    precio_unitario: float
+    stock: int
+
+
+#  MODELO PARA CREAR
+class ProductoCreate(BaseModel):
     nombre: str = Field(
         ...,
         min_length=4,
