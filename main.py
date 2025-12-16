@@ -150,9 +150,8 @@ def crear_producto(producto: Producto):
 
 @app.get("/productos", response_model=list[Producto], tags=["Productos"])
 def obtener_productos():
-    """Obtener todos los productos"""
-    return dbProductos
-
+    data = supabase.table("producto").select("*").execute()
+    return data.data
 
 @app.get("/productos/{codigo}", response_model=Producto, tags=["Productos"])
 def obtener_producto_por_codigo(codigo: str):
@@ -189,9 +188,9 @@ def crear_detalle_factura(detalle: DetalleFactura):
 
 @app.get("/detalle_factura", response_model=list[DetalleFactura], tags=["Detalle Factura"])
 def obtener_detalles_factura():
-    """Obtener todos los detalles de factura"""
-    return dbDetalles
-
+    """Obtener todos los detalles de factura desde Supabase"""
+    data = supabase.table("detalle_factura").select("*").execute()
+    return data.data 
 
 # ===================== FACTURA ========================
 
@@ -205,8 +204,8 @@ def crear_factura(factura: Factura):
 
 @app.get("/factura", response_model=list[Factura], tags=["Factura"])
 def obtener_facturas():
-    """Obtener todas las facturas"""
-    return dbFacturas
+    data = supabase.table("factura").select("*").execute()
+    return data.data
 
 
 @app.get("/factura/{id}", response_model=Factura, tags=["Factura"])
