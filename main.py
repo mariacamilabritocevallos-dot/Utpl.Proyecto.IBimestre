@@ -157,13 +157,21 @@ def obtener_productos():
     data = supabase.table("producto").select("*").execute()
     return data.data
 
-@app.get("/productos/{codigo}", response_model=Producto, tags=["Productos"])
-def obtener_producto_por_codigo(codigo: str):
-    """Buscar un producto por código"""
-    for p in dbProductos:
-        if p.codigo == codigo:
-            return p
+@app.get("/productos/{identificacion}", tags=["Productos"])
+def obtener_producto_por_identificacion(identificacion: int):
+    data = supabase.table("producto") \
+        .select("*") \
+        .eq("identificacion", identificacion) \
+        .execute()
+
+    print("Identificacion:", identificacion)
+    print("Data:", data.data)
+
+    if data.data:
+        return data.data[0]
+
     raise HTTPException(status_code=404, detail="Producto no encontrado")
+
 
 
 @app.put("/productos/{codigo}", response_model=Producto, tags=["Productos"])
@@ -183,12 +191,36 @@ def actualizar_producto(codigo: str, producto_actualizado: Producto):
 # ================= DETALLE FACTURA ====================
 
 
-@app.post("/detalle_factura", response_model=DetalleFactura, tags=["Detalle Factura"])
+@app.post("/detalle-factura", tags=["Detalle Factura"])
 def crear_detalle_factura(detalle: DetalleFactura):
-    """Crear detalle de factura"""
-    dbDetalles.append(detalle)
-    return detalle
 
+    #  Verificar que la factura exista
+    factura = supabase.table("factura") \
+        .select("id") \
+        .eq("id", detalle.factura_id) \
+        .execute()
+
+    if not factura.data:
+        raise HTTPException(
+            status_code=400,
+            detail="La factura no existe"
+        )
+
+    #  Calcular subtotal
+    subtotal = round(detalle.cantidad * detalle.precio_unitario, 2)
+
+    insert_data = {
+    "factura_id": detalle.factura_id,
+    "descripcion": detalle.descripcion,
+    "cantidad": detalle.cantidad,
+    "precio_unitario": detalle.precio_unitario,
+    "subtotal": subtotal
+}
+
+
+    data = supabase.table("detalle_factura").insert(insert_data).execute()
+
+    return data.data[0]
 
 @app.get("/detalle_factura", response_model=list[DetalleFactura], tags=["Detalle Factura"])
 def obtener_detalles_factura():
@@ -208,7 +240,7 @@ def crear_factura(factura: Factura):
     # Calcular impuesto (IVA 12%)
     impuesto = round(subtotal * 0.12, 2)
 
-    # 3Calcular total
+    # Calcular total
     total = round(subtotal + impuesto, 2)
 
     #  Datos a insertar
@@ -236,13 +268,22 @@ def obtener_facturas():
     return data.data
 
 
-@app.get("/factura/{id}", response_model=Factura, tags=["Factura"])
-def obtener_factura_por_id(id: int):
-    """Buscar una factura por ID"""
-    for f in dbFacturas:
-        if f.id == id:
-            return f
+@app.get("/factura/{identificacion}", tags=["Factura"])
+def obtener_factura_por_identificacion(identificacion: str):
+    data = supabase.table("factura") \
+        .select("*") \
+        .eq("identificacion", identificacion) \
+        .execute()
+
+    print("Identificacion recibida:", identificacion)
+    print("Resultado Supabase:", data.data)
+
+    if data.data:
+        return data.data[0]
+
     raise HTTPException(status_code=404, detail="Factura no encontrada")
+
+
 
 
 @app.put("/factura/{id}", response_model=Factura, tags=["Factura"])
