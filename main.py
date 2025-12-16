@@ -21,29 +21,28 @@ supabase = create_supabase_client()
 
 # Descripción completa de la API con Markdown
 descriptionInfo = """
-## 🎓 API REST de Ejemplo - UTPL
-Esta API REST fue desarrollada con **FastAPI** para enseñar a estudiantes los conceptos fundamentales 
-de desarrollo de APIs modernas y la interoperabilidad de sistemas.
-### 📋 Funcionalidades principales
-#### Gestión de Personas
-Puedes realizar operaciones CRUD completas:
-* **Crear** nuevas personas con validación de datos
-* **Consultar** todas las personas o buscar por identificación
-* **Actualizar** información de personas existentes
-* **Eliminar** registros de personas
-#### Base de Datos
-* Integración con **Supabase** como backend
-* Validación automática de datos con Pydantic
-* Manejo de errores HTTP
-### 👨‍🏫 Información del Curso
-**Materia:** Interoperabilidad Empresarial 
-**Institución:** Universidad Técnica Particular de Loja (UTPL)  
-**Email:** fdquinones@utpl.edu.ec  
-### 🚀 Tecnologías
-* FastAPI 
-* Python 3.8+
-* Supabase
-* Pydantic para validación de datos
+## API REST 
+Esta API REST fue desarrollada con FastAPI para gestionar procesos de facturación, permitiendo la interoperabilidad entre sistemas y el manejo eficiente de la información.
+ 
+ Funcionalidades principales:
+
+Gestión de Facturación:
+- Se pueden realizar operaciones CRUD completas:
+- Crear nuevas facturas con validación de datos
+- Consultar todas las facturas o buscar por número de factura o identificación del cliente
+- Actualizar información de facturas existentes
+- Eliminar registros de facturas
+
+Gestión de Clientes:
+-Registrar clientes
+- Consultar información de clientes
+- Actualizar datos de clientes
+- Eliminar registros de clientes
+ 
+ Base de Datos:
+- Integración con Supabase como backend
+- Validación automática de datos con Pydantic
+- Manejo de errores mediante códigos HTTP 
 """
 
 # Instancia de FastAPI
