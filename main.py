@@ -143,14 +143,18 @@ def eliminar_cliente(identificacion: str):
 
 @app.post("/productos", response_model=Producto, tags=["Productos"])
 def crear_producto(producto: Producto):
+
     data = supabase.table("producto").insert({
+        "codigo": producto.codigo,
         "nombre": producto.nombre,
         "descripcion": producto.descripcion,
         "precio_unitario": producto.precio_unitario,
         "stock": producto.stock
     }).execute()
 
-    return data.data[0]
+    return producto
+        
+
 
 @app.get("/productos", response_model=list[Producto], tags=["Productos"])
 def obtener_productos():
@@ -173,19 +177,28 @@ def obtener_producto_por_identificacion(identificacion: int):
     raise HTTPException(status_code=404, detail="Producto no encontrado")
 
 
+@app.put("/productos/{id}", response_model=Producto, tags=["Productos"])
+def actualizar_producto(id: int, producto_actualizado: Producto):
+    """
+    Actualizar un producto existente.
+    El id del cuerpo debe coincidir con el de la ruta.
+    """
 
-@app.put("/productos/{codigo}", response_model=Producto, tags=["Productos"])
-def actualizar_producto(codigo: str, producto_actualizado: Producto):
-    """Actualizar un producto por código"""
-    if producto_actualizado.codigo != codigo:
-        raise HTTPException(status_code=400, detail="Código inconsistente")
+    if producto_actualizado.id != id:
+        raise HTTPException(status_code=400, detail="ID inconsistente")
 
-    for idx, p in enumerate(dbProductos):
-        if p.codigo == codigo:
-            dbProductos[idx] = producto_actualizado
-            return producto_actualizado
+    data = supabase.table("producto").update({
+        "nombre": producto_actualizado.nombre,
+        "descripcion": producto_actualizado.descripcion,
+        "precio_unitario": producto_actualizado.precio_unitario,
+        "stock": producto_actualizado.stock
+    }).eq("id", id).execute()
+
+    if data.data:
+        return producto_actualizado
 
     raise HTTPException(status_code=404, detail="Producto no encontrado")
+
 
 
 # ================= DETALLE FACTURA ====================
@@ -228,6 +241,7 @@ def obtener_detalles_factura():
     data = supabase.table("detalle_factura").select("*").execute()
     return data.data 
 
+
 # ===================== FACTURA ========================
 
 
@@ -267,6 +281,35 @@ def obtener_facturas():
     data = supabase.table("factura").select("*").execute()
     return data.data
 
+@app.put("/factura/{id}", tags=["Factura"])
+def actualizar_factura(id: int, factura: Factura):
+
+    if factura.cliente_id <= 0:
+        raise HTTPException(status_code=400, detail="cliente_id inválido")
+
+    impuesto = round(factura.subtotal * 0.12, 2)
+    total = round(factura.subtotal + impuesto, 2)
+
+    data = supabase.table("factura").update({
+        "cliente_id": factura.cliente_id,
+        "fecha": factura.fecha.isoformat(),
+        "numero_factura": factura.numero_factura,
+        "subtotal": factura.subtotal,
+        "impuesto": impuesto,
+        "total": total
+    }).eq("id", id).execute()
+
+    if not data.data:
+        raise HTTPException(status_code=404, detail="Factura no encontrada")
+
+    return {
+        "id": id,
+        **factura.dict(),
+        "impuesto": impuesto,
+        "total": total
+    }
+
+
 
 @app.get("/factura/{identificacion}", tags=["Factura"])
 def obtener_factura_por_identificacion(identificacion: str):
@@ -284,17 +327,3 @@ def obtener_factura_por_identificacion(identificacion: str):
     raise HTTPException(status_code=404, detail="Factura no encontrada")
 
 
-
-
-@app.put("/factura/{id}", response_model=Factura, tags=["Factura"])
-def actualizar_factura(id: int, factura_actualizada: Factura):
-    """Actualizar una factura por ID"""
-    if factura_actualizada.id != id:
-        raise HTTPException(status_code=400, detail="El ID del cuerpo no coincide con la ruta")
-
-    for idx, f in enumerate(dbFacturas):
-        if f.id == id:
-            dbFacturas[idx] = factura_actualizada
-            return factura_actualizada
-
-    raise HTTPException(status_code=404, detail="Factura no encontrada")
